@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown Live Preview</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700;800&family=Source+Code+Pro:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" id="highlight-theme">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="header-left">
+                <h1 class="app-title">Markdown Live Preview</h1>
+            </div>
+            <div class="header-controls">
+                <div class="control-group">
+                    <button class="btn btn-icon" id="resetBtn" title="Reset">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M8 2V6M8 10V14M2 8H6M10 8H14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                        <span>Reset</span>
+                    </button>
+                    <button class="btn btn-icon" id="copyBtn" title="Copy Markdown">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="5" y="5" width="8" height="8" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                            <path d="M3 11V4C3 3.44772 3.44772 3 4 3H11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                        <span>Copy</span>
+                    </button>
+                    <button class="btn btn-icon" id="exportPdfBtn" title="Export as PDF">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M4 2H10L13 5V14C13 14.5523 12.5523 15 12 15H4C3.44772 15 3 14.5523 3 14V3C3 2.44772 3.44772 2 4 2Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M10 2V5H13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>Export PDF</span>
+                    </button>
+                </div>
+                <div class="control-divider"></div>
+                <div class="control-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="syncScroll" checked>
+                        <span>Sync scroll</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="darkMode">
+                        <span>Dark mode</span>
+                    </label>
+                </div>
+            </div>
+        </header>
+        
+        <div class="editor-container">
+            <div class="editor-pane">
+                <div class="pane-header">
+                    <span class="pane-title">Editor</span>
+                </div>
+                <div class="editor-wrapper">
+                    <div class="line-numbers" id="lineNumbers"></div>
+                    <textarea 
+                        class="markdown-editor" 
+                        id="markdownEditor" 
+                        placeholder="Start typing your Markdown here..."
+                        spellcheck="false"
+                    ># Markdown syntax guide
+
+## Headers
+# This is a Heading h1
+## This is a Heading h2
+###### This is a Heading h6
+
+## Emphasis
+*This text will be italic*
+_This will also be italic_
+
+**This text will be bold**
+__This will also be bold__
+
+You **can** combine them
+
+## Lists
+### Unordered
+* Item 1
+* Item 2
+  * Item 2a
+  * Item 2b
+    * Item 3a
+    * Item 3b
+
+### Ordered
+1. Item 1
+2. Item 2
+3. Item 3
+   1. Item 3a
+   2. Item 3b
+
+## Images
+![This is an alt text.](/image/Markdown-mark.svg "This is a sample image.")
+
+## Links
+You may be using [Markdown Live Preview](https://markdownlivepreview.com/).
+
+## Blockquotes
+> Markdown is a lightweight markup language with plain-text-formatting syntax, created in 2004 by John Gruber with Aaron Swartz.
+
+## Code
+Inline `code` has `back-ticks around` it.
+
+\`\`\`javascript
+function greet(name) {
+  return \`Hello, \${name}!\`;
+}
+\`\`\`
+
+## Tables
+| Column 1 | Column 2 | Column 3 |
+|----------|----------|----------|
+| Row 1    | Data 1   | Data 2   |
+| Row 2    | Data 3   | Data 4   |
+
+## Horizontal Rule
+---
+
+## Task Lists
+- [x] Completed task
+- [ ] Incomplete task</textarea>
+                </div>
+            </div>
+            
+            <div class="preview-pane">
+                <div class="pane-header">
+                    <span class="pane-title">Preview</span>
+                </div>
+                <div class="preview-content" id="previewContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
