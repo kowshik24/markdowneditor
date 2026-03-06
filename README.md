@@ -20,7 +20,7 @@ A beautiful, modern Markdown editor with live preview, inspired by PostHog's des
 
 ## Getting Started
 
-### Local Development
+### Local Preview
 
 1. Clone this repository:
 ```bash
@@ -28,19 +28,7 @@ git clone <your-repo-url>
 cd markdowneditor
 ```
 
-2. Open `index.html` in your web browser, or use a local server:
-```bash
-# Using Python 3
-python3 -m http.server 8000
-
-# Using Node.js (with http-server)
-npx http-server
-
-# Using PHP
-php -S localhost:8000
-```
-
-3. Open `http://localhost:8000` in your browser
+2. Open `index.html` directly in your browser for a quick preview.
 
 ### GitHub Pages Deployment
 
@@ -108,8 +96,9 @@ This project uses a design system inspired by PostHog:
 
 ## Security Notes
 
-- CDN-based dependencies are loaded with Subresource Integrity (SRI) and `crossorigin="anonymous"`.
-- If you upgrade CDN versions, update both the URL and matching integrity hash.
+- Runtime dependencies are vendored locally under `assets/vendor` to avoid third-party runtime fetches.
+- A Content Security Policy (CSP) is defined via a meta tag in `index.html` for GitHub Pages compatibility.
+- UI fonts are self-hosted from pinned package versions under `assets/fonts`, so runtime font requests do not depend on Google Fonts.
 
 ## Browser Support
 

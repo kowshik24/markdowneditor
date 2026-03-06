@@ -230,14 +230,10 @@ function updateHighlightTheme(isDark) {
   const highlightTheme = document.getElementById('highlight-theme');
 
   if (isDark) {
-    highlightTheme.href = 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css';
-    highlightTheme.integrity = 'sha384-wH75j6z1lH97ZOpMOInqhgKzFkAInZPPSPlZpYKYTOqsaizPvhQZmAtLcPKXpLyH';
+    highlightTheme.href = 'assets/vendor/css/highlight-github-dark.min.css';
   } else {
-    highlightTheme.href = 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css';
-    highlightTheme.integrity = 'sha384-eFTL69TLRZTkNfYZOLM+G04821K1qZao/4QLJbet1pP4tcF+fdXq/9CdqAbWRl/L';
+    highlightTheme.href = 'assets/vendor/css/highlight-github.min.css';
   }
-
-  highlightTheme.crossOrigin = 'anonymous';
 }
 
 darkModeCheckbox.addEventListener('change', (e) => {
