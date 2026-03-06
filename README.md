@@ -8,11 +8,15 @@ A beautiful, modern Markdown editor with live preview, inspired by PostHog's des
 - 🎨 **PostHog-inspired Design** - Clean, modern UI with carefully crafted typography and colors
 - 🌙 **Dark Mode** - Toggle between light and dark themes
 - 📋 **Copy to Clipboard** - Quickly copy your Markdown content
+- 📂 **Open Markdown Files** - Load local `.md`/`.markdown` files into the editor
+- 💾 **Save Markdown Files** - Download your current editor content as a Markdown file
 - 📄 **Export to PDF** - Export your rendered content as a PDF
 - 🔄 **Sync Scroll** - Synchronize scrolling between editor and preview panes
 - 💾 **Auto-save** - Your content is automatically saved to browser localStorage
 - 📱 **Responsive** - Works great on desktop and mobile devices
 - 🎯 **Syntax Highlighting** - Code blocks are highlighted with syntax colors
+- ⌨️ **Keyboard Shortcuts** - Fast actions for open, save, export, copy, and reset
+- 🛡️ **Sanitized Preview** - Rendered Markdown HTML is sanitized before display
 
 ## Getting Started
 
@@ -71,9 +75,19 @@ git push -u origin main
 3. **Use the controls:**
    - **Reset**: Clear and restore default content
    - **Copy**: Copy Markdown to clipboard
+   - **Open**: Load a local Markdown file
+   - **Save**: Download current Markdown as a file
    - **Export PDF**: Download rendered content as PDF
    - **Sync scroll**: Keep editor and preview in sync
    - **Dark mode**: Toggle dark theme
+
+## Keyboard Shortcuts
+
+- **Cmd/Ctrl + S**: Save Markdown file
+- **Cmd/Ctrl + O**: Open Markdown file
+- **Cmd/Ctrl + Shift + S**: Export PDF
+- **Cmd/Ctrl + Shift + C**: Copy Markdown
+- **Cmd/Ctrl + Shift + R**: Reset editor content
 
 ## Design System
 
@@ -91,6 +105,11 @@ This project uses a design system inspired by PostHog:
 - **jsPDF** - PDF generation
 - **Vanilla JavaScript** - No framework dependencies
 - **CSS3** - Modern styling with CSS variables
+
+## Security Notes
+
+- CDN-based dependencies are loaded with Subresource Integrity (SRI) and `crossorigin="anonymous"`.
+- If you upgrade CDN versions, update both the URL and matching integrity hash.
 
 ## Browser Support
 

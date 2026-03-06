@@ -14,12 +14,18 @@ const previewContent = document.getElementById('previewContent');
 const lineNumbers = document.getElementById('lineNumbers');
 const resetBtn = document.getElementById('resetBtn');
 const copyBtn = document.getElementById('copyBtn');
+const openFileBtn = document.getElementById('openFileBtn');
+const saveFileBtn = document.getElementById('saveFileBtn');
 const exportPdfBtn = document.getElementById('exportPdfBtn');
 const syncScrollCheckbox = document.getElementById('syncScroll');
 const darkModeCheckbox = document.getElementById('darkMode');
+const markdownFileInput = document.getElementById('markdownFileInput');
 
 // Default markdown content
 const defaultMarkdown = markdownEditor.value;
+let currentFileName = 'markdown-preview.md';
+
+const copyBtnDefaultContent = copyBtn.innerHTML;
 
 // Update line numbers
 function updateLineNumbers() {
@@ -38,12 +44,35 @@ function updateLineNumbers() {
 function updatePreview() {
   const markdown = markdownEditor.value;
   const html = marked.parse(markdown);
-  previewContent.innerHTML = html;
+  const safeHtml = DOMPurify.sanitize(html, {
+    USE_PROFILES: { html: true }
+  });
+  previewContent.innerHTML = safeHtml;
   
   // Highlight code blocks
   previewContent.querySelectorAll('pre code').forEach((block) => {
     hljs.highlightElement(block);
   });
+}
+
+function triggerDownload(filename, content) {
+  const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = filename;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  URL.revokeObjectURL(url);
+}
+
+function saveMarkdownFile() {
+  triggerDownload(currentFileName, markdownEditor.value);
+}
+
+function openMarkdownFile() {
+  markdownFileInput.click();
 }
 
 // Sync scroll between editor and preview
@@ -108,7 +137,7 @@ copyBtn.addEventListener('click', async () => {
     await navigator.clipboard.writeText(markdownEditor.value);
     copyBtn.textContent = 'Copied!';
     setTimeout(() => {
-      copyBtn.innerHTML = '<span>Copy</span>';
+      copyBtn.innerHTML = copyBtnDefaultContent;
     }, 2000);
   } catch (err) {
     console.error('Failed to copy:', err);
@@ -117,9 +146,41 @@ copyBtn.addEventListener('click', async () => {
     document.execCommand('copy');
     copyBtn.textContent = 'Copied!';
     setTimeout(() => {
-      copyBtn.innerHTML = '<span>Copy</span>';
+      copyBtn.innerHTML = copyBtnDefaultContent;
     }, 2000);
   }
+});
+
+// Open file button
+openFileBtn.addEventListener('click', openMarkdownFile);
+
+// Save file button
+saveFileBtn.addEventListener('click', saveMarkdownFile);
+
+// File input change
+markdownFileInput.addEventListener('change', (event) => {
+  const [file] = event.target.files;
+
+  if (!file) {
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = (loadEvent) => {
+    const content = typeof loadEvent.target.result === 'string' ? loadEvent.target.result : '';
+    markdownEditor.value = content;
+    currentFileName = file.name || 'markdown-preview.md';
+    updateLineNumbers();
+    updatePreview();
+    localStorage.setItem('markdownContent', markdownEditor.value);
+  };
+
+  reader.onerror = () => {
+    alert('Failed to open file. Please try another Markdown file.');
+  };
+
+  reader.readAsText(file);
+  event.target.value = '';
 });
 
 // Export PDF button
@@ -167,11 +228,16 @@ exportPdfBtn.addEventListener('click', () => {
 // Dark mode toggle
 function updateHighlightTheme(isDark) {
   const highlightTheme = document.getElementById('highlight-theme');
+
   if (isDark) {
     highlightTheme.href = 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css';
+    highlightTheme.integrity = 'sha384-wH75j6z1lH97ZOpMOInqhgKzFkAInZPPSPlZpYKYTOqsaizPvhQZmAtLcPKXpLyH';
   } else {
     highlightTheme.href = 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css';
+    highlightTheme.integrity = 'sha384-eFTL69TLRZTkNfYZOLM+G04821K1qZao/4QLJbet1pP4tcF+fdXq/9CdqAbWRl/L';
   }
+
+  highlightTheme.crossOrigin = 'anonymous';
 }
 
 darkModeCheckbox.addEventListener('change', (e) => {
@@ -232,3 +298,41 @@ if (savedContent) {
   updateLineNumbers();
   updatePreview();
 }
+
+// Keyboard shortcuts
+document.addEventListener('keydown', (event) => {
+  const isModifierPressed = event.metaKey || event.ctrlKey;
+
+  if (!isModifierPressed) {
+    return;
+  }
+
+  const key = event.key.toLowerCase();
+
+  if (key === 's') {
+    event.preventDefault();
+    if (event.shiftKey) {
+      exportPdfBtn.click();
+      return;
+    }
+    saveMarkdownFile();
+    return;
+  }
+
+  if (key === 'o') {
+    event.preventDefault();
+    openMarkdownFile();
+    return;
+  }
+
+  if (key === 'c' && event.shiftKey) {
+    event.preventDefault();
+    copyBtn.click();
+    return;
+  }
+
+  if (key === 'r' && event.shiftKey) {
+    event.preventDefault();
+    resetBtn.click();
+  }
+});
