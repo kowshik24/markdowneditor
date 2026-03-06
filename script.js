@@ -44,6 +44,7 @@ function updateLineNumbers() {
 // Update preview
 function updatePreview() {
   const markdown = markdownEditor.value;
+  const previousPreviewProgress = getScrollProgress(previewContent);
 
   try {
     const html = marked.parse(markdown);
@@ -66,6 +67,9 @@ function updatePreview() {
   previewContent.querySelectorAll('pre code').forEach((block) => {
     hljs.highlightElement(block);
   });
+
+  // Keep preview position stable while re-rendering to prevent visible jitter.
+  setScrollProgress(previewContent, previousPreviewProgress);
 }
 
 function triggerDownload(filename, content) {
@@ -176,11 +180,6 @@ markdownEditor.addEventListener('input', () => {
   updateLineNumbers();
   updatePreview();
   syncLineNumberScroll();
-  
-  // Sync scroll if enabled
-  if (syncScrollCheckbox.checked) {
-    syncScroll(markdownEditor, previewContent);
-  }
 });
 
 markdownEditor.addEventListener('scroll', () => {
