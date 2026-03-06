@@ -3,9 +3,7 @@
 // Initialize marked.js with options
 marked.setOptions({
   breaks: true,
-  gfm: true,
-  headerIds: true,
-  mangle: false
+  gfm: true
 });
 
 // Get DOM elements
@@ -43,11 +41,23 @@ function updateLineNumbers() {
 // Update preview
 function updatePreview() {
   const markdown = markdownEditor.value;
-  const html = marked.parse(markdown);
-  const safeHtml = DOMPurify.sanitize(html, {
-    USE_PROFILES: { html: true }
-  });
-  previewContent.innerHTML = safeHtml;
+
+  try {
+    const html = marked.parse(markdown);
+    const safeHtml = DOMPurify.sanitize(html, {
+      USE_PROFILES: { html: true }
+    });
+
+    previewContent.innerHTML = safeHtml;
+  } catch (error) {
+    const escapedMarkdown = markdown
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;');
+
+    previewContent.innerHTML = `<pre><code>${escapedMarkdown}</code></pre>`;
+    console.error('Failed to parse markdown. Showing raw content instead.', error);
+  }
   
   // Highlight code blocks
   previewContent.querySelectorAll('pre code').forEach((block) => {
