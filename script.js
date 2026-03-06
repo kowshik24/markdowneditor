@@ -12,6 +12,9 @@ const previewContent = document.getElementById('previewContent');
 const lineNumbers = document.getElementById('lineNumbers');
 const resetBtn = document.getElementById('resetBtn');
 const copyBtn = document.getElementById('copyBtn');
+const insertLinkBtn = document.getElementById('insertLinkBtn');
+const insertImageBtn = document.getElementById('insertImageBtn');
+const insertQuoteBtn = document.getElementById('insertQuoteBtn');
 const openFileBtn = document.getElementById('openFileBtn');
 const saveFileBtn = document.getElementById('saveFileBtn');
 const exportPdfBtn = document.getElementById('exportPdfBtn');
@@ -85,34 +88,94 @@ function openMarkdownFile() {
   markdownFileInput.click();
 }
 
+function applyEditorChange(nextValue, selectionStart, selectionEnd = selectionStart) {
+  markdownEditor.value = nextValue;
+  markdownEditor.focus();
+  markdownEditor.setSelectionRange(selectionStart, selectionEnd);
+  updateLineNumbers();
+  updatePreview();
+  syncLineNumberScroll();
+  localStorage.setItem('markdownContent', markdownEditor.value);
+}
+
+function replaceEditorSelection(replacement, selectionStart, selectionEnd = selectionStart) {
+  const start = markdownEditor.selectionStart;
+  const end = markdownEditor.selectionEnd;
+  const nextValue = `${markdownEditor.value.slice(0, start)}${replacement}${markdownEditor.value.slice(end)}`;
+  applyEditorChange(nextValue, selectionStart, selectionEnd);
+}
+
+function insertMarkdownLink() {
+  const selected = markdownEditor.value.slice(markdownEditor.selectionStart, markdownEditor.selectionEnd).trim() || 'link text';
+  const url = 'https://example.com';
+  const replacement = `[${selected}](${url})`;
+  const urlStart = markdownEditor.selectionStart + replacement.indexOf(url);
+  replaceEditorSelection(replacement, urlStart, urlStart + url.length);
+}
+
+function insertMarkdownImage() {
+  const selected = markdownEditor.value.slice(markdownEditor.selectionStart, markdownEditor.selectionEnd).trim() || 'alt text';
+  const imageUrl = 'https://example.com/image.png';
+  const replacement = `![${selected}](${imageUrl})`;
+  const urlStart = markdownEditor.selectionStart + replacement.indexOf(imageUrl);
+  replaceEditorSelection(replacement, urlStart, urlStart + imageUrl.length);
+}
+
+function insertMarkdownQuote() {
+  const selectedText = markdownEditor.value.slice(markdownEditor.selectionStart, markdownEditor.selectionEnd);
+  const quoteText = selectedText || 'Quote text';
+  const quoted = quoteText
+    .split('\n')
+    .map((line) => (line.length ? `> ${line}` : '>'))
+    .join('\n');
+
+  replaceEditorSelection(quoted, markdownEditor.selectionStart, markdownEditor.selectionStart + quoted.length);
+}
+
 // Sync scroll between editor and preview
-let isScrolling = false;
+let syncSource = null;
+
+function getScrollProgress(element) {
+  const maxScrollTop = element.scrollHeight - element.clientHeight;
+  if (maxScrollTop <= 0) {
+    return 0;
+  }
+
+  return element.scrollTop / maxScrollTop;
+}
+
+function setScrollProgress(element, progress) {
+  const maxScrollTop = element.scrollHeight - element.clientHeight;
+  if (maxScrollTop <= 0) {
+    element.scrollTop = 0;
+    return;
+  }
+
+  element.scrollTop = Math.max(0, Math.min(maxScrollTop, progress * maxScrollTop));
+}
 
 function syncScroll(source, target) {
-  if (isScrolling) return;
-  isScrolling = true;
-  
-  const sourceScrollTop = source.scrollTop;
-  const sourceScrollHeight = source.scrollHeight;
-  const sourceClientHeight = source.clientHeight;
-  
-  const targetScrollHeight = target.scrollHeight;
-  const targetClientHeight = target.clientHeight;
-  
-  const scrollRatio = sourceScrollTop / (sourceScrollHeight - sourceClientHeight);
-  const targetScrollTop = scrollRatio * (targetScrollHeight - targetClientHeight);
-  
-  target.scrollTop = targetScrollTop;
-  
-  setTimeout(() => {
-    isScrolling = false;
-  }, 10);
+  if (syncSource && syncSource !== source) {
+    return;
+  }
+
+  syncSource = source;
+  setScrollProgress(target, getScrollProgress(source));
+
+  requestAnimationFrame(() => {
+    syncSource = null;
+  });
+}
+
+function syncLineNumberScroll() {
+  lineNumbers.scrollTop = markdownEditor.scrollTop;
 }
 
 // Event listeners
 markdownEditor.addEventListener('input', () => {
   updateLineNumbers();
   updatePreview();
+  syncLineNumberScroll();
   
   // Sync scroll if enabled
   if (syncScrollCheckbox.checked) {
@@ -121,13 +184,14 @@ markdownEditor.addEventListener('input', () => {
 });
 
 markdownEditor.addEventListener('scroll', () => {
-  if (syncScrollCheckbox.checked && !isScrolling) {
+  syncLineNumberScroll();
+  if (syncScrollCheckbox.checked) {
     syncScroll(markdownEditor, previewContent);
   }
 });
 
 previewContent.addEventListener('scroll', () => {
-  if (syncScrollCheckbox.checked && !isScrolling) {
+  if (syncScrollCheckbox.checked) {
     syncScroll(previewContent, markdownEditor);
   }
 });
@@ -138,6 +202,8 @@ resetBtn.addEventListener('click', () => {
     markdownEditor.value = defaultMarkdown;
     updateLineNumbers();
     updatePreview();
+    syncLineNumberScroll();
+    localStorage.setItem('markdownContent', markdownEditor.value);
   }
 });
 
@@ -162,6 +228,9 @@ copyBtn.addEventListener('click', async () => {
 });
 
 // Open file button
+insertLinkBtn.addEventListener('click', insertMarkdownLink);
+insertImageBtn.addEventListener('click', insertMarkdownImage);
+insertQuoteBtn.addEventListener('click', insertMarkdownQuote);
 openFileBtn.addEventListener('click', openMarkdownFile);
 
 // Save file button
@@ -182,6 +251,7 @@ markdownFileInput.addEventListener('change', (event) => {
     currentFileName = file.name || 'markdown-preview.md';
     updateLineNumbers();
     updatePreview();
+    syncLineNumberScroll();
     localStorage.setItem('markdownContent', markdownEditor.value);
   };
 
@@ -276,6 +346,9 @@ if (localStorage.getItem('darkMode') === 'true') {
 // Sync scroll checkbox
 syncScrollCheckbox.addEventListener('change', (e) => {
   localStorage.setItem('syncScroll', e.target.checked);
+  if (e.target.checked) {
+    syncScroll(markdownEditor, previewContent);
+  }
 });
 
 // Load sync scroll preference
@@ -286,6 +359,7 @@ if (localStorage.getItem('syncScroll') === 'false') {
 // Initialize
 updateLineNumbers();
 updatePreview();
+syncLineNumberScroll();
 
 // Handle window resize
 window.addEventListener('resize', () => {
@@ -303,6 +377,7 @@ if (savedContent) {
   markdownEditor.value = savedContent;
   updateLineNumbers();
   updatePreview();
+  syncLineNumberScroll();
 }
 
 // Keyboard shortcuts
@@ -334,6 +409,24 @@ document.addEventListener('keydown', (event) => {
   if (key === 'c' && event.shiftKey) {
     event.preventDefault();
     copyBtn.click();
+    return;
+  }
+
+  if (key === 'k' && event.shiftKey) {
+    event.preventDefault();
+    insertLinkBtn.click();
+    return;
+  }
+
+  if (key === 'm' && event.shiftKey) {
+    event.preventDefault();
+    insertImageBtn.click();
+    return;
+  }
+
+  if (key === 'q' && event.shiftKey) {
+    event.preventDefault();
+    insertQuoteBtn.click();
     return;
   }
 

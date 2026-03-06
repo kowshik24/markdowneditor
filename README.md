@@ -12,6 +12,7 @@ A beautiful, modern Markdown editor with live preview, inspired by PostHog's des
 - 💾 **Save Markdown Files** - Download your current editor content as a Markdown file
 - 📄 **Export to PDF** - Export your rendered content as a PDF
 - 🔄 **Sync Scroll** - Synchronize scrolling between editor and preview panes
+- 🔗 **Quick Insert Actions** - Insert Markdown links, image URLs, and blockquotes from the toolbar
 - 💾 **Auto-save** - Your content is automatically saved to browser localStorage
 - 📱 **Responsive** - Works great on desktop and mobile devices
 - 🎯 **Syntax Highlighting** - Code blocks are highlighted with syntax colors
@@ -61,10 +62,11 @@ git push -u origin main
 1. **Type Markdown** in the left pane
 2. **Preview** appears instantly in the right pane
 3. **Use the controls:**
-   - **Reset**: Clear and restore default content
-   - **Copy**: Copy Markdown to clipboard
-   - **Open**: Load a local Markdown file
-   - **Save**: Download current Markdown as a file
+    - **Reset**: Clear and restore default content
+    - **Copy**: Copy Markdown to clipboard
+    - **Link/Image/Quote**: Insert Markdown snippets at the cursor position
+    - **Open**: Load a local Markdown file
+    - **Save**: Download current Markdown as a file
    - **Export PDF**: Download rendered content as PDF
    - **Sync scroll**: Keep editor and preview in sync
    - **Dark mode**: Toggle dark theme
@@ -75,6 +77,9 @@ git push -u origin main
 - **Cmd/Ctrl + O**: Open Markdown file
 - **Cmd/Ctrl + Shift + S**: Export PDF
 - **Cmd/Ctrl + Shift + C**: Copy Markdown
+- **Cmd/Ctrl + Shift + K**: Insert link snippet
+- **Cmd/Ctrl + Shift + M**: Insert image snippet
+- **Cmd/Ctrl + Shift + Q**: Insert quote snippet
 - **Cmd/Ctrl + Shift + R**: Reset editor content
 
 ## Design System
